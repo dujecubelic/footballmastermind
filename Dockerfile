@@ -1,15 +1,23 @@
+# Stage 1: Build with Maven
+FROM maven:3.9.4-eclipse-temurin-17 AS builder
+WORKDIR /build
 
-# Use an official OpenJDK runtime as a parent image
-FROM eclipse-temurin:17-jdk-alpine
+# Copy only backend folder
+COPY backend /build
 
-# Set the working directory
+# Build the app
+RUN mvn clean package -DskipTests
+
+# Stage 2: Run the app
+FROM eclipse-temurin:17-jdk
 WORKDIR /app
 
-# Copy the Maven build jar to the container
-COPY backend/target/*.jar app.jar
+# Copy built jar from builder
+COPY --from=builder /build/target/*.jar app.jar
 
-# Expose port 8080 (change this if your app uses a different one)
+# Expose port
 EXPOSE 8080
 
-# Run the jar file
+# Run the app
 ENTRYPOINT ["java", "-jar", "app.jar"]
+
