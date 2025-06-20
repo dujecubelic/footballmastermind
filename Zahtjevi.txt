@@ -1,0 +1,27 @@
+Funkcionalni zahtjevi visokog prioriteta:
+Kreiranje računa s imenom i lozinkom ili Gmailom
+3 različite uloge: gost, prijavljeni korisnik i administrator
+Korištenje aplikacije bez prijave
+Glavni meni iz kojeg se može birati igra
+Igranje svake od dostupnih igara, solo ili #online protiv drugog igrača
+Generiranje pitanja za kvizove od strane ChatGPT-a
+#Povezivanje na dostupnu bazu podataka (FBREF, transfermarkt, Understat)
+#Traženje odgovora u bazi na temelju generiranog pitanja (jer ChatGPT nema uvijek točne odgovore za to)
+#Provjera točnosti unesenog igrača u križić-kružić igri (povezano s bazom)
+Vođenje podataka o postotku točnosti odgovora, prosječnom vremenu odgovora, #usporedba s ostalim igračima (percentil)
+#Korisnik može rješavati već napravljene kvizove
+/Korisnik može zatražiti temu kviza od ChatGPT-a (samo ako je prijavljen)
+#Online trivia borba - na ponuđeno pitanje igrač koji prvi upiše točan odgovor dobiva bod
+#Igranje protiv prijatelja - direktno povezivanje
+
+
+Funkcionalni zahtjevi srednjeg prioriteta:
+Dodatni izazovi u igri križić-kružić (blokiranje određenih poznatijih igrača i sl.)
+ELO sistem u križić-kružić i trivia borbi
+Kviz dana/dnevno pitanje/križić-kružić polje generiran od strane ChatGPT-a
+Igranje s više prijatelja ili nasumičnih ljudi online, u sobama s do 4 igrača
+
+Funkcionalni zahtjevi niskog prioriteta:
+Dodavanje novih igara
+Hintovi u kvizovima
+

@@ -1,0 +1,17 @@
+GET    /api/games                           # Get all available games
+GET    /api/games/{gameType}/config         # Get specific game config
+POST   /api/games/{gameType}/sessions       # Create game session
+GET    /api/games/{gameType}/sessions/{id}  # Get session details
+POST   /api/games/{gameType}/sessions/{id}/join    # Join session
+POST   /api/games/{gameType}/sessions/{id}/answer  # Submit answer
+POST   /api/games/{gameType}/sessions/{id}/leave   # Leave session
+
+POST   /api/auth/register                   # User registration
+POST   /api/auth/login                      # User login
+GET    /api/auth/me                         # Get current user
+POST   /api/auth/logout                     # User logout
+
+GET    /api/players/{userId}/stats          # Get player statistics
+GET    /api/leaderboard                     # Get leaderboard
+
+WebSocket: /ws/games/{gameType}/sessions/{sessionId}  # Real-time updates
