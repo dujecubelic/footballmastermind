@@ -6,7 +6,7 @@ FROM eclipse-temurin:17-jdk-alpine
 WORKDIR /app
 
 # Copy the Maven build jar to the container
-COPY target/*.jar app.jar
+COPY backend/target/*.jar app.jar
 
 # Expose port 8080 (change this if your app uses a different one)
 EXPOSE 8080
