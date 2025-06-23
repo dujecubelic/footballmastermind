@@ -26,7 +26,7 @@ public class ChatGptServiceImpl implements ChatGptService {
     private SerpApiSearchService serpApiSearchService;
 
     private static final String OPENAI_URL = "https://api.openai.com/v1/chat/completions";
-    private static final String API_KEY = "";
+    private static final String API_KEY = System.getenv("openApiKey");
     private final WebClient webClient;
 
     public ChatGptServiceImpl(WebClient.Builder builder) {

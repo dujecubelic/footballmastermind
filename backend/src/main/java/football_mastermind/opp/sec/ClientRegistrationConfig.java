@@ -39,7 +39,6 @@ public class ClientRegistrationConfig {
 		String ID = "not found"; //nisam baš siguran postoji li bolje rješenje za ovo, ali return mora biti izvan try bloka
 		try {
 			if (Objects.equals(provider, "google")) {
-
 				ID = System.getenv("GOOGLE_ID");
 			} else {
 				throw new Exception("unknown provider");
@@ -54,7 +53,6 @@ public class ClientRegistrationConfig {
 		String secret = "not found";
 		try {
 			if (Objects.equals(provider, "google")) {
-
 				secret = System.getenv("GOOGLE_SECRET");
 			} else {
 				throw new Exception("unknown provider");
