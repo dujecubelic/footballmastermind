@@ -25,9 +25,11 @@ WORKDIR /backend
 # Copy backend source
 COPY backend/ ./
 
-# Create static resources directory and copy frontend build
+# Create static resources directory and copy ALL frontend build files
 RUN mkdir -p src/main/resources/static
-COPY --from=frontend-builder /app/out/* src/main/resources/static/
+
+# Copy the entire out directory (includes _next/static and all assets)
+COPY --from=frontend-builder /app/out/ src/main/resources/static/
 
 # Build Spring Boot application
 RUN mvn clean package -DskipTests
