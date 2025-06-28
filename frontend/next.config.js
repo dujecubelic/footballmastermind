@@ -16,11 +16,6 @@ const nextConfig = {
   env: {
     NEXT_PUBLIC_API_URL: "",
   },
-  assetPrefix: process.env.NODE_ENV === "production" ? "" : "",
-  basePath: "",
-  experimental: {
-    esmExternals: false,
-  },
 }
 
 module.exports = nextConfig
