@@ -1,21 +1,21 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://footballmastermind.onrender.com"
-
-export class ApiClient {
+class ApiClient {
   private baseURL: string
 
   constructor() {
-    this.baseURL = API_BASE_URL
+    // Use relative URLs since frontend and backend are on same domain
+    this.baseURL = ""
   }
 
-  async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-    const url = `${this.baseURL}${endpoint}`
+  private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+    // Keep the /api prefix for backend endpoints
+    const url = `${this.baseURL}/api${endpoint}`
 
     const config: RequestInit = {
       headers: {
         "Content-Type": "application/json",
         ...options.headers,
       },
-      credentials: "include", // Important for session cookies
+      credentials: "include", // Include cookies for session management
       ...options,
     }
 
