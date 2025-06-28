@@ -1,20 +1,18 @@
-# Multi-stage build for both frontend and backend
-
 # Stage 1: Build Frontend
 FROM node:18-alpine AS frontend-builder
 
 WORKDIR /app
 
-# Copy frontend package files from the frontend folder
+# Copy frontend package files
 COPY frontend/package*.json ./
 
-# Install all dependencies
+# Install all dependencies (use npm install since no package-lock.json exists)
 RUN npm install
 
-# Copy all frontend source code from the frontend folder
+# Copy frontend source code
 COPY frontend/ .
 
-# Build frontend for static export
+# Build the frontend
 RUN npm run build
 
 # Stage 2: Build Backend
@@ -22,16 +20,10 @@ FROM maven:3.9.4-eclipse-temurin-17 AS backend-builder
 
 WORKDIR /backend
 
-# Copy backend source
+# Copy backend files
 COPY backend/ ./
 
-# Create static resources directory and copy ALL frontend build files
-RUN mkdir -p src/main/resources/static
-
-# Copy the entire out directory (includes _next/static and all assets)
-COPY --from=frontend-builder /app/out/ src/main/resources/static/
-
-# Build Spring Boot application
+# Build the backend
 RUN mvn clean package -DskipTests
 
 # Stage 3: Runtime
@@ -42,8 +34,15 @@ WORKDIR /app
 # Install wget for health checks
 RUN apk add --no-cache wget
 
-# Copy the built jar from backend builder
+# Copy built jar from backend builder
 COPY --from=backend-builder /backend/target/*.jar app.jar
+
+# Copy built frontend from frontend builder to Spring Boot static resources
+COPY --from=frontend-builder /app/out/ /app/static/
+
+# Create the static resources directory in the jar location
+RUN mkdir -p /app/src/main/resources/static
+COPY --from=frontend-builder /app/out/ /app/src/main/resources/static/
 
 # Expose port
 EXPOSE 8080
