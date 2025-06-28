@@ -1,5 +1,9 @@
+/** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
+  output: "export",
+  trailingSlash: true,
+  skipTrailingSlashRedirect: true,
+  distDir: "out",
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -9,13 +13,13 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  // Configure for production deployment
-  output: "export",
-  trailingSlash: true,
-  distDir: "out",
-  // Environment variables
   env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || "https://footballmastermind.onrender.com",
+    NEXT_PUBLIC_API_URL: "",
+  },
+  assetPrefix: process.env.NODE_ENV === "production" ? "" : "",
+  basePath: "",
+  experimental: {
+    esmExternals: false,
   },
 }
 
