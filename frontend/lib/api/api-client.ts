@@ -1,78 +1,64 @@
-const API_BASE_URL =
-  process.env.NODE_ENV === "production"
-    ? "" // Empty string for relative URLs in production
-    : process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"
-
-interface ApiOptions {
-  method?: string
-  headers?: Record<string, string>
-  body?: FormData | URLSearchParams | string
-  credentials?: RequestCredentials
-}
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://footballmastermind.onrender.com"
 
 export class ApiClient {
-  static async fetch<T>(endpoint: string, options: ApiOptions = {}): Promise<T> {
-    const url = `${API_BASE_URL}${endpoint}`
+  private baseURL: string
 
-    const defaultHeaders: Record<string, string> = {
-      Accept: "application/json",
-    }
+  constructor() {
+    this.baseURL = API_BASE_URL
+  }
 
-    // Don't set Content-Type for FormData as the browser will set it with the boundary
-    if (!(options.body instanceof FormData) && !(options.body instanceof URLSearchParams)) {
-      defaultHeaders["Content-Type"] = "application/json"
-    }
+  async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+    const url = `${this.baseURL}${endpoint}`
 
-    const fetchOptions: RequestInit = {
-      method: options.method || "GET",
-      headers: { ...defaultHeaders, ...options.headers },
-      credentials: options.credentials || "include", // Always include credentials for session management
-      body: options.body,
+    const config: RequestInit = {
+      headers: {
+        "Content-Type": "application/json",
+        ...options.headers,
+      },
+      credentials: "include", // Important for session cookies
+      ...options,
     }
 
     try {
-      const response = await fetch(url, fetchOptions)
+      const response = await fetch(url, config)
 
-      // Check if response is ok first
       if (!response.ok) {
-        // For error responses, try to get error details from JSON
-        try {
-          const errorData = await response.json()
-          throw new Error(errorData.message || errorData.error || `API error: ${response.status}`)
-        } catch (jsonError) {
-          // If parsing JSON fails, use status text
-          throw new Error(`API error: ${response.status} ${response.statusText}`)
-        }
+        throw new Error(`HTTP error! status: ${response.status}`)
       }
 
-      // For successful responses, check content type
       const contentType = response.headers.get("content-type")
-
       if (contentType && contentType.includes("application/json")) {
-        return (await response.json()) as T
-      } else {
-        // For non-JSON responses (like plain text)
-        return (await response.text()) as unknown as T
+        return await response.json()
       }
+
+      return (await response.text()) as unknown as T
     } catch (error) {
-      console.error(`API Error (${endpoint}):`, error)
+      console.error("API request failed:", error)
       throw error
     }
   }
 
-  static async get<T>(endpoint: string, options: ApiOptions = {}): Promise<T> {
-    return this.fetch<T>(endpoint, { ...options, method: "GET", credentials: "include" })
+  async get<T>(endpoint: string): Promise<T> {
+    return this.request<T>(endpoint, { method: "GET" })
   }
 
-  static async post<T>(endpoint: string, options: ApiOptions = {}): Promise<T> {
-    return this.fetch<T>(endpoint, { ...options, method: "POST", credentials: "include" })
+  async post<T>(endpoint: string, data?: any): Promise<T> {
+    return this.request<T>(endpoint, {
+      method: "POST",
+      body: data ? JSON.stringify(data) : undefined,
+    })
   }
 
-  static async put<T>(endpoint: string, options: ApiOptions = {}): Promise<T> {
-    return this.fetch<T>(endpoint, { ...options, method: "PUT", credentials: "include" })
+  async put<T>(endpoint: string, data?: any): Promise<T> {
+    return this.request<T>(endpoint, {
+      method: "PUT",
+      body: data ? JSON.stringify(data) : undefined,
+    })
   }
 
-  static async delete<T>(endpoint: string, options: ApiOptions = {}): Promise<T> {
-    return this.fetch<T>(endpoint, { ...options, method: "DELETE", credentials: "include" })
+  async delete<T>(endpoint: string): Promise<T> {
+    return this.request<T>(endpoint, { method: "DELETE" })
   }
 }
+
+export const apiClient = new ApiClient()
