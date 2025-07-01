@@ -18,10 +18,13 @@ RUN npm run build
 # Stage 2: Build Backend
 FROM maven:3.9.4-eclipse-temurin-17 AS backend-builder
 
-WORKDIR /backend
+WORKDIR /app
 
 # Copy backend files
-COPY backend/ ./
+COPY backend/ .
+
+# Copy built frontend files to Spring Boot static resources
+COPY --from=frontend-builder /app/out/ src/main/resources/static/
 
 # Build the backend
 RUN mvn clean package -DskipTests
@@ -34,15 +37,8 @@ WORKDIR /app
 # Install wget for health checks
 RUN apk add --no-cache wget
 
-# Copy built jar from backend builder
-COPY --from=backend-builder /backend/target/*.jar app.jar
-
-# Copy built frontend from frontend builder to Spring Boot static resources
-COPY --from=frontend-builder /app/out/ /app/static/
-
-# Create the static resources directory in the jar location
-RUN mkdir -p /app/src/main/resources/static
-COPY --from=frontend-builder /app/out/ /app/src/main/resources/static/
+# Copy the built jar
+COPY --from=backend-builder /app/target/*.jar app.jar
 
 # Expose port
 EXPOSE 8080
