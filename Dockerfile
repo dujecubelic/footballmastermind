@@ -1,35 +1,32 @@
-# Multi-stage build for both frontend and backend
-
 # Stage 1: Build Frontend
 FROM node:18-alpine AS frontend-builder
 
-WORKDIR /frontend
+WORKDIR /app
 
 # Copy frontend package files
-COPY package*.json ./
+COPY frontend/package*.json ./
 
-# Install frontend dependencies
-RUN npm ci --only=production
+# Install all dependencies (use npm install since no package-lock.json exists)
+RUN npm install
 
 # Copy frontend source code
-COPY . .
+COPY frontend/ .
 
-# Build frontend for static export
+# Build the frontend
 RUN npm run build
 
 # Stage 2: Build Backend
 FROM maven:3.9.4-eclipse-temurin-17 AS backend-builder
 
-WORKDIR /backend
+WORKDIR /app
 
-# Copy backend source
-COPY backend/ ./
+# Copy backend files
+COPY backend/ .
 
-# Create static resources directory and copy frontend build
-RUN mkdir -p src/main/resources/static
-COPY --from=frontend-builder /frontend/out/* src/main/resources/static/
+# Copy built frontend files to Spring Boot static resources
+COPY --from=frontend-builder /app/out/ src/main/resources/static/
 
-# Build Spring Boot application
+# Build the backend
 RUN mvn clean package -DskipTests
 
 # Stage 3: Runtime
@@ -37,22 +34,18 @@ FROM eclipse-temurin:17-jre-alpine
 
 WORKDIR /app
 
-# Copy the built jar from backend builder
-COPY --from=backend-builder /backend/target/*.jar app.jar
+# Install wget for health checks
+RUN apk add --no-cache wget
 
-# Create non-root user for security
-RUN addgroup -g 1001 -S appgroup && \
-    adduser -S appuser -u 1001 -G appgroup
-
-USER appuser
+# Copy the built jar
+COPY --from=backend-builder /app/target/*.jar app.jar
 
 # Expose port
 EXPOSE 8080
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:8080/actuator/health || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://localhost:8080/api/health || exit 1
 
 # Run the application
-ENTRYPOINT ["java", "-Djava.security.egd=file:/dev/./urandom", "-jar", "app.jar"]
-
+ENTRYPOINT ["java", "-jar", "app.jar"]
